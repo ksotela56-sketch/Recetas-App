@@ -1,7 +1,7 @@
 # Recetas-App
 
-Aplicación de recetas de cocina en Python (CLI), con arquitectura MVC y persistencia
-en SQLite. Gestionada con [uv](https://docs.astral.sh/uv/).
+Aplicación web de recetas de cocina en Python, con arquitectura MVC y persistencia
+en SQLite. Servidor local con Flask. Gestionada con [uv](https://docs.astral.sh/uv/).
 
 Ver [SPEC.md](./SPEC.md) para la especificación funcional y [PLAN.md](./PLAN.md) para
 el plan de implementación por fases.
@@ -28,6 +28,8 @@ o, mediante el script instalado por el proyecto:
 uv run recetas-app
 ```
 
+Luego abre **http://127.0.0.1:5000** en tu navegador.
+
 La base de datos SQLite se crea automáticamente en `data/recetas.db` la primera vez
 que se ejecuta la aplicación.
 
@@ -42,8 +44,9 @@ uv run pytest
 ```
 src/recetas_app/
   models/       # Acceso a datos: esquema SQLite y repositorios CRUD
-  views/        # Presentación en consola (entrada/salida de texto)
-  controllers/  # Lógica de orquestación entre modelo y vista
-  main.py       # Punto de entrada
-tests/          # Pruebas con pytest
+  views/        # Plantillas HTML (Jinja2) y estáticos (CSS)
+  controllers/  # Blueprints Flask: reciben la petición, llaman al modelo, renderizan la vista
+  app.py        # Crea y configura la app Flask
+  main.py       # Punto de entrada: inicializa la BD y arranca el servidor
+tests/          # Pruebas con pytest (modelo y rutas web)
 ```

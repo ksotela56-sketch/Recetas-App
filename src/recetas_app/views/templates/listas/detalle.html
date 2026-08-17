@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Lista de la compra · Recetas-App{% endblock %}
+{% block content %}
+<h1>{{ lista.meal_plan_nombre or ('Lista #' ~ lista.id) }}</h1>
+<p class="hint">Creada: {{ lista.created_at }}</p>
+
+<div class="card">
+  {% if items %}
+  <table>
+    <thead><tr><th></th><th>Ingrediente</th><th>Cantidad</th></tr></thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>
+          <form class="inline" method="post"
+                action="{{ url_for('listas.toggle_item', lista_id=lista.id, item_id=item.id) }}">
+            <button type="submit">{{ '✔' if item.comprado else '☐' }}</button>
+          </form>
+        </td>
+        <td style="{{ 'text-decoration:line-through;color:var(--muted)' if item.comprado else '' }}">{{ item.nombre }}</td>
+        <td>{{ item.cantidad_total ~ ' ' ~ (item.unidad or '') if item.cantidad_total else '-' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">La lista no tiene ítems.</p>
+  {% endif %}
+
+  <div class="actions">
+    <form method="post" action="{{ url_for('listas.eliminar', lista_id=lista.id) }}"
+          onsubmit="return confirm('¿Eliminar esta lista?');">
+      <button type="submit" class="danger">Eliminar lista</button>
+    </form>
+    <a class="button" href="{{ url_for('listas.listado') }}">Volver</a>
+  </div>
+</div>
+{% endblock %}

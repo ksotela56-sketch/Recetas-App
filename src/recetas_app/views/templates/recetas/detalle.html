@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ receta.nombre }} · Recetas-App{% endblock %}
+{% block content %}
+<h1>{{ receta.nombre }}</h1>
+
+<div class="card">
+  {% if receta.categoria_nombre %}<p><strong>Categoría:</strong> {{ receta.categoria_nombre }}</p>{% endif %}
+  {% if receta.tiempo_preparacion %}<p><strong>Tiempo de preparación:</strong> {{ receta.tiempo_preparacion }} min</p>{% endif %}
+  {% if receta.porciones %}<p><strong>Porciones:</strong> {{ receta.porciones }}</p>{% endif %}
+  {% if receta.descripcion %}<p><strong>Descripción:</strong> {{ receta.descripcion }}</p>{% endif %}
+
+  <h2>Ingredientes</h2>
+  {% if receta.ingredientes %}
+  <ul>
+    {% for item in receta.ingredientes %}
+    <li>{{ item.nombre }}{% if item.cantidad %} — {{ item.cantidad }} {{ item.unidad or '' }}{% endif %}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">Sin ingredientes.</p>
+  {% endif %}
+
+  <h2>Pasos</h2>
+  {% if receta.pasos %}
+  <ol>
+    {% for paso in receta.pasos %}
+    <li>{{ paso.descripcion }}</li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="empty">Sin pasos.</p>
+  {% endif %}
+
+  <div class="actions">
+    <a class="button" href="{{ url_for('recetas.editar_formulario', recipe_id=receta.id) }}">Editar</a>
+    <form class="inline" method="post" action="{{ url_for('recetas.eliminar', recipe_id=receta.id) }}"
+          onsubmit="return confirm('¿Eliminar esta receta?');">
+      <button type="submit" class="danger">Eliminar</button>
+    </form>
+    <a class="button" href="{{ url_for('recetas.listado') }}">Volver al listado</a>
+  </div>
+</div>
+{% endblock %}

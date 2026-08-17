@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Recetas-App{% endblock %}
+{% block content %}
+<h1>Bienvenido a Recetas-App</h1>
+<p>Gestiona tus recetas, planifica tu semana y genera tu lista de la compra.</p>
+<div class="card">
+  <ul>
+    <li><a href="{{ url_for('recetas.listado') }}">📖 Ver mis recetas</a></li>
+    <li><a href="{{ url_for('categorias.listado') }}">🏷️ Gestionar categorías</a></li>
+    <li><a href="{{ url_for('buscar.buscar') }}">🔍 Buscar una receta</a></li>
+    <li><a href="{{ url_for('planes.listado') }}">🗓️ Planificar la semana</a></li>
+    <li><a href="{{ url_for('listas.listado') }}">🛒 Lista de la compra</a></li>
+  </ul>
+</div>
+{% endblock %}

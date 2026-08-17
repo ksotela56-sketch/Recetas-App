@@ -6,10 +6,12 @@ authors = [
     { name = "ksotela56-sketch", email = "ksotela56@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "flask>=3.1.3",
+]
 
 [project.scripts]
-recetas-app = "recetas_app:main"
+recetas-app = "recetas_app.main:main"
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Categorías · Recetas-App{% endblock %}
+{% block content %}
+<h1>Categorías</h1>
+
+<div class="card">
+  <h2>Nueva categoría</h2>
+  <form method="post" action="{{ url_for('categorias.crear') }}">
+    <label for="nombre">Nombre</label>
+    <input type="text" id="nombre" name="nombre" required>
+    <div class="actions">
+      <input type="submit" value="Crear categoría">
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  {% if categorias %}
+  <table>
+    <thead><tr><th>Nombre</th><th></th></tr></thead>
+    <tbody>
+      {% for c in categorias %}
+      <tr>
+        <td>{{ c.nombre }}</td>
+        <td>
+          <form class="inline" method="post" action="{{ url_for('categorias.eliminar', category_id=c.id) }}"
+                onsubmit="return confirm('¿Eliminar la categoría {{ c.nombre }}?');">
+            <button type="submit" class="danger">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No hay categorías registradas todavía.</p>
+  {% endif %}
+</div>
+{% endblock %}

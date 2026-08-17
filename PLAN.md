@@ -1,57 +1,47 @@
-# Plan de implementación — Recetas-App
+# Plan de implementación — Recetas-App (versión web)
 
-Basado en [SPEC.md](./SPEC.md). Cada fase deja la app en un estado funcional y probable.
+Basado en [SPEC.md](./SPEC.md). El Modelo (fase 1 original, capa SQLite) ya está hecho y
+no cambia. Este plan cubre la migración de Vista/Controlador de CLI a web con Flask.
 
-## Fase 0 — Setup del proyecto
-- `uv init` para crear `pyproject.toml` y entorno virtual del proyecto.
-- Añadir dependencias con `uv add` (stdlib `sqlite3` no requiere dependencia; `pytest` como
-  dependencia de desarrollo con `uv add --dev pytest`).
-- Crear estructura de carpetas `recetas_app/{models,views,controllers}` y `tests/`.
-- Configurar `data/` (ignorada en git) para el archivo `recetas.db`.
+## Fase A — Setup de Flask
+- `uv add flask`.
+- Crear `controllers/`/`views/` nuevos (Blueprints + plantillas Jinja2), retirar los
+  módulos de CLI (`*_view.py` de texto, `*_controller.py` de menús, `main.py` antiguo).
+- `app.py`: `create_app()` que registra los blueprints y configura `template_folder`/
+  `static_folder` apuntando a `views/`.
+- `main.py`: inicializa la BD (`init_db()`) y arranca `app.run(debug=True)`.
 
-## Fase 1 — Capa de Modelo base
-- `models/database.py`: conexión SQLite, creación de esquema (todas las tablas de la SPEC),
-  función `init_db()`.
-- `models/category.py` y `models/ingredient.py`: repositorios CRUD simples.
-- `models/recipe.py`: repositorio para Recipe + RecipeIngredient + Step (crear/leer/actualizar/
-  eliminar receta completa, incluyendo sus ingredientes y pasos).
+## Fase B — Recetas y Categorías (CRUD web)
+- Plantilla base `base.html` con navegación a las 5 secciones.
+- `category_routes.py` + plantillas `categorias/listado.html`: listar, crear (formulario
+  inline), eliminar (formulario POST).
+- `recipe_routes.py` + plantillas `recetas/{listado,detalle,formulario}.html`: listar, ver
+  detalle, crear/editar (mismo formulario, con textarea para ingredientes y pasos línea a
+  línea), eliminar.
 
-## Fase 2 — CRUD de Recetas y Categorías (Controlador + Vista)
-- `controllers/category_controller.py` + `views/category_view.py`.
-- `controllers/recipe_controller.py` + `views/recipe_view.py`: alta/edición interactiva
-  (nombre, descripción, tiempo, porciones, categoría, ingredientes, pasos), listado y detalle.
-- `views/main_menu_view.py` + `main.py`: menú principal navegable con las opciones 1 y 2.
+## Fase C — Búsqueda
+- `search_routes.py` + plantilla `buscar/resultados.html`: formulario con selector
+  nombre/categoría/ingrediente y tabla de resultados en la misma página.
 
-## Fase 3 — Búsqueda y filtrado
-- Métodos de consulta en `models/recipe.py` (por nombre, categoría, ingrediente).
-- `controllers/search_controller.py` + `views/search_view.py`.
-- Integrar opción 3 en el menú principal.
+## Fase D — Planificación semanal
+- `meal_plan_routes.py` + plantillas `planes/{listado,detalle}.html`: crear plan, ver
+  tabla semanal (día x comida), formulario para asignar receta, botón para quitar
+  asignación.
 
-## Fase 4 — Planificación semanal
-- `models/meal_plan.py`: repositorio para MealPlan + MealPlanEntry.
-- `controllers/meal_plan_controller.py` + `views/meal_plan_view.py`: crear plan, asignar
-  receta a día/comida, ver plan en formato tabla semanal, quitar asignación.
-- Integrar opción 4 en el menú principal.
+## Fase E — Lista de la compra
+- `shopping_list_routes.py` + plantillas `listas/{listado,detalle}.html`: generar desde
+  un plan, ver ítems con checkbox de comprado (toggle vía POST), eliminar lista.
 
-## Fase 5 — Lista de la compra
-- `models/shopping_list.py`: repositorio para ShoppingList + ShoppingListItem.
-- Lógica de agregación: sumar cantidades por ingrediente+unidad a partir de las recetas
-  asignadas en un plan semanal.
-- `controllers/shopping_list_controller.py` + `views/shopping_list_view.py`.
-- Integrar opción 5 en el menú principal.
+## Fase F — Pruebas
+- `tests/test_routes.py`: smoke tests con el Flask test client (`app.test_client()`) sobre
+  los flujos principales (crear receta vía POST, ver listado, generar lista de compra).
+- Mantener y ejecutar los tests de modelo ya existentes (`uv run pytest`).
 
-## Fase 6 — Pruebas
-- `pytest` sobre repositorios de modelos (usar base de datos SQLite en memoria o archivo
-  temporal por test).
-- Pruebas de la lógica de agregación de la lista de la compra (caso con ingredientes
-  repetidos en distintas unidades).
-- Ejecutar con `uv run pytest`.
-
-## Fase 7 — Pulido
-- Validación de inputs en las vistas (números, opciones fuera de rango, campos vacíos).
-- Manejo de errores de integridad (ej. eliminar categoría en uso).
-- Actualizar `README.md` con instrucciones de instalación (`uv sync`) y ejecución
-  (`uv run python -m recetas_app.main`).
+## Fase G — Pulido
+- CSS mínimo (`views/static/style.css`) para legibilidad (tipografía, tablas, formularios).
+- Mensajes de error/confirmación visibles en las plantillas (flash messages de Flask).
+- Actualizar `README.md`: `uv run python -m recetas_app.main` y abrir
+  `http://localhost:5000`.
 
 ## Convención de commits por fase
-Un commit por fase completada, para poder revisar el avance incrementalmente.
+Un commit por fase completada.

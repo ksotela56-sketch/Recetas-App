@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Recetas · Recetas-App{% endblock %}
+{% block content %}
+<h1>Recetas</h1>
+<div class="actions">
+  <a class="button" href="{{ url_for('recetas.nueva') }}">+ Nueva receta</a>
+</div>
+
+<div class="card">
+  {% if recetas %}
+  <table>
+    <thead><tr><th>Nombre</th><th>Categoría</th><th>Tiempo</th><th></th></tr></thead>
+    <tbody>
+      {% for r in recetas %}
+      <tr>
+        <td><a href="{{ url_for('recetas.detalle', recipe_id=r.id) }}">{{ r.nombre }}</a></td>
+        <td>{{ r.categoria_nombre or '-' }}</td>
+        <td>{{ (r.tiempo_preparacion ~ ' min') if r.tiempo_preparacion else '-' }}</td>
+        <td><a href="{{ url_for('recetas.detalle', recipe_id=r.id) }}">Ver</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No hay recetas registradas todavía.</p>
+  {% endif %}
+</div>
+{% endblock %}

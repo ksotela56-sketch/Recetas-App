@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Planificación semanal · Recetas-App{% endblock %}
+{% block content %}
+<h1>Planificación semanal</h1>
+
+<div class="card">
+  <h2>Nuevo plan semanal</h2>
+  <form method="post" action="{{ url_for('planes.crear') }}">
+    <label for="nombre">Nombre</label>
+    <input type="text" id="nombre" name="nombre" placeholder="Semana del 18/08" required>
+    <label for="fecha_inicio">Fecha de inicio (opcional)</label>
+    <input type="text" id="fecha_inicio" name="fecha_inicio" placeholder="AAAA-MM-DD">
+    <div class="actions">
+      <input type="submit" value="Crear plan">
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  {% if planes %}
+  <table>
+    <thead><tr><th>Nombre</th><th>Fecha inicio</th><th></th></tr></thead>
+    <tbody>
+      {% for p in planes %}
+      <tr>
+        <td><a href="{{ url_for('planes.detalle', plan_id=p.id) }}">{{ p.nombre }}</a></td>
+        <td>{{ p.fecha_inicio or '-' }}</td>
+        <td><a href="{{ url_for('planes.detalle', plan_id=p.id) }}">Ver</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No hay planes semanales todavía.</p>
+  {% endif %}
+</div>
+{% endblock %}

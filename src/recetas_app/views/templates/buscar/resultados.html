@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Buscar recetas · Recetas-App{% endblock %}
+{% block content %}
+<h1>Buscar recetas</h1>
+
+<div class="card">
+  <form method="get" action="{{ url_for('buscar.buscar') }}">
+    <label for="tipo">Buscar por</label>
+    <select id="tipo" name="tipo" onchange="this.form.submit()">
+      <option value="nombre" {% if tipo == 'nombre' %}selected{% endif %}>Nombre</option>
+      <option value="ingrediente" {% if tipo == 'ingrediente' %}selected{% endif %}>Ingrediente</option>
+      <option value="categoria" {% if tipo == 'categoria' %}selected{% endif %}>Categoría</option>
+    </select>
+
+    {% if tipo == 'categoria' %}
+    <label for="categoria_id">Categoría</label>
+    <select id="categoria_id" name="categoria_id">
+      <option value="">-- elige --</option>
+      {% for c in categorias %}
+      <option value="{{ c.id }}" {% if categoria_id == c.id %}selected{% endif %}>{{ c.nombre }}</option>
+      {% endfor %}
+    </select>
+    {% else %}
+    <label for="q">Texto</label>
+    <input type="text" id="q" name="q" value="{{ texto }}">
+    {% endif %}
+
+    <div class="actions">
+      <input type="submit" value="Buscar">
+    </div>
+  </form>
+</div>
+
+{% if resultados is not none %}
+<div class="card">
+  {% if resultados %}
+  <table>
+    <thead><tr><th>Nombre</th><th>Categoría</th><th>Tiempo</th></tr></thead>
+    <tbody>
+      {% for r in resultados %}
+      <tr>
+        <td><a href="{{ url_for('recetas.detalle', recipe_id=r.id) }}">{{ r.nombre }}</a></td>
+        <td>{{ r.categoria_nombre or '-' }}</td>
+        <td>{{ (r.tiempo_preparacion ~ ' min') if r.tiempo_preparacion else '-' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No se encontraron recetas.</p>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

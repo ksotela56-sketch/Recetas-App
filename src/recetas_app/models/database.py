@@ -1,6 +1,7 @@
 """Conexión y esquema de la base de datos SQLite."""
 
 import sqlite3
+from contextlib import contextmanager
 from pathlib import Path
 
 DB_PATH = Path(__file__).resolve().parents[3] / "data" / "recetas.db"
@@ -72,8 +73,9 @@ CREATE TABLE IF NOT EXISTS shopping_list_item (
 """
 
 
-def get_connection(db_path: Path = DB_PATH) -> sqlite3.Connection:
+def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
     """Abre una conexión a la base de datos con claves foráneas activadas."""
+    db_path = db_path or DB_PATH
     db_path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(db_path)
     connection.row_factory = sqlite3.Row
@@ -81,7 +83,17 @@ def get_connection(db_path: Path = DB_PATH) -> sqlite3.Connection:
     return connection
 
 
-def init_db(db_path: Path = DB_PATH) -> None:
+@contextmanager
+def db_session(db_path: Path | None = None):
+    """Context manager que abre una conexión y la cierra al salir del bloque."""
+    connection = get_connection(db_path)
+    try:
+        yield connection
+    finally:
+        connection.close()
+
+
+def init_db(db_path: Path | None = None) -> None:
     """Crea el esquema de base de datos si no existe."""
     connection = get_connection(db_path)
     try:

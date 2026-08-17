@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Lista de la compra · Recetas-App{% endblock %}
+{% block content %}
+<h1>Lista de la compra</h1>
+
+<div class="card">
+  <h2>Generar desde un plan semanal</h2>
+  {% if planes %}
+  <form method="post" action="{{ url_for('listas.generar') }}">
+    <label for="plan_id">Plan semanal</label>
+    <select id="plan_id" name="plan_id">
+      {% for p in planes %}
+      <option value="{{ p.id }}">{{ p.nombre }}</option>
+      {% endfor %}
+    </select>
+    <div class="actions">
+      <input type="submit" value="Generar lista">
+    </div>
+  </form>
+  {% else %}
+  <p class="empty">Todavía no tienes planes semanales. <a href="{{ url_for('planes.listado') }}">Crea uno</a> primero.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  {% if listas %}
+  <table>
+    <thead><tr><th>Plan</th><th>Creada</th><th></th></tr></thead>
+    <tbody>
+      {% for l in listas %}
+      <tr>
+        <td><a href="{{ url_for('listas.detalle', lista_id=l.id) }}">{{ l.meal_plan_nombre or ('Lista #' ~ l.id) }}</a></td>
+        <td>{{ l.created_at }}</td>
+        <td><a href="{{ url_for('listas.detalle', lista_id=l.id) }}">Ver</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No hay listas de la compra todavía.</p>
+  {% endif %}
+</div>
+{% endblock %}

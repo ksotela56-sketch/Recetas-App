@@ -2,9 +2,13 @@
 
 ## 1. Resumen
 
-Aplicación de recetas de cocina en Python, con interfaz de línea de comandos (CLI),
-persistencia en SQLite y arquitectura **MVC** (Modelo / Vista / Controlador) en carpetas
-separadas. Gestión de dependencias y entorno con **uv**.
+Aplicación web de recetas de cocina en Python, servida en el navegador (HTML) mediante un
+servidor local **Flask**, con persistencia en SQLite y arquitectura **MVC** (Modelo / Vista /
+Controlador) en carpetas separadas. Gestión de dependencias y entorno con **uv**.
+
+> Nota de revisión: la v1 se implementó como CLI de terminal. Se sustituyó por esta versión
+> web porque la interfaz de texto no resultaba cómoda de usar. El Modelo (capa de acceso a
+> datos SQLite) no cambió; solo cambiaron Vista y Controlador.
 
 ## 2. Funcionalidades
 
@@ -97,74 +101,76 @@ ShoppingListItem
   comprado          INTEGER  -- boolean 0/1
 ```
 
-## 4. Pantallas (menús CLI)
+## 4. Pantallas (páginas web)
 
 ```
-Menú principal
- 1. Recetas
-    1.1 Listar recetas
-    1.2 Ver detalle de receta
-    1.3 Crear receta
-    1.4 Editar receta
-    1.5 Eliminar receta
- 2. Categorías
-    2.1 Listar categorías
-    2.2 Crear categoría
-    2.3 Eliminar categoría
- 3. Buscar recetas
-    3.1 Por nombre
-    3.2 Por categoría
-    3.3 Por ingrediente
- 4. Planificación semanal
-    4.1 Crear plan semanal
-    4.2 Ver plan semanal
-    4.3 Asignar receta a día/comida
-    4.4 Quitar asignación
- 5. Lista de la compra
-    5.1 Generar desde un plan semanal
-    5.2 Ver lista de la compra
-    5.3 Marcar ítem como comprado
-    5.4 Eliminar lista
- 6. Salir
+/                          Inicio: enlaces a las 5 secciones
+
+/recetas                   Listado de recetas
+/recetas/nueva             Formulario: crear receta
+/recetas/<id>               Detalle de receta (ingredientes + pasos)
+/recetas/<id>/editar        Formulario: editar receta
+/recetas/<id>/eliminar      (POST) elimina y vuelve al listado
+
+/categorias                Listado de categorías + formulario para crear
+/categorias/<id>/eliminar   (POST) elimina
+
+/buscar                    Formulario de búsqueda (nombre / categoría / ingrediente) + resultados
+
+/planes                    Listado de planes semanales + formulario para crear
+/planes/<id>                 Vista semanal (día x tipo de comida) + formulario para asignar receta
+/planes/<id>/entradas/<eid>/eliminar  (POST) quita una asignación
+
+/listas                    Listado de listas de la compra + formulario para generar desde un plan
+/listas/<id>                 Ítems de la lista con checkbox de comprado
+/listas/<id>/eliminar        (POST) elimina la lista
 ```
 
 ## 5. Arquitectura (MVC en carpetas separadas)
 
 ```
 recetas_app/
-  models/            # Acceso a datos: conexión SQLite, esquema, repositorios CRUD
+  models/              # Acceso a datos: conexión SQLite, esquema, repositorios CRUD
     database.py
     recipe.py
     category.py
     ingredient.py
     meal_plan.py
     shopping_list.py
-  views/             # Solo presentación: leer input, imprimir menús/resultados
-    main_menu_view.py
-    recipe_view.py
-    category_view.py
-    search_view.py
-    meal_plan_view.py
-    shopping_list_view.py
-  controllers/        # Orquestan Modelo <-> Vista, validaciones, lógica de negocio
-    recipe_controller.py
-    category_controller.py
-    search_controller.py
-    meal_plan_controller.py
-    shopping_list_controller.py
-  main.py             # Punto de entrada
+  views/               # Solo presentación: plantillas HTML (Jinja2) y estáticos
+    templates/
+      base.html
+      index.html
+      recetas/...
+      categorias/...
+      buscar/...
+      planes/...
+      listas/...
+    static/
+      style.css
+  controllers/          # Blueprints Flask: reciben la petición HTTP, llaman al modelo,
+                         # eligen la plantilla a renderizar (sin lógica de negocio compleja
+                         # ni acceso a la vista más allá de render_template)
+    recipe_routes.py
+    category_routes.py
+    search_routes.py
+    meal_plan_routes.py
+    shopping_list_routes.py
+  app.py                # Crea y configura la app Flask, registra los blueprints
+  main.py                # Punto de entrada: inicializa la BD y arranca el servidor
 tests/
   test_recipe_model.py
-  test_meal_plan_controller.py
   test_shopping_list.py
-pyproject.toml         # gestionado con uv
+  test_routes.py          # pruebas de las rutas Flask (smoke tests con el test client)
+pyproject.toml            # gestionado con uv
 data/
-  recetas.db           # base de datos SQLite (creada en tiempo de ejecución)
+  recetas.db              # base de datos SQLite (creada en tiempo de ejecución)
 ```
 
 **Regla de dependencias:** Vista → Controlador → Modelo (una sola dirección).
-Las vistas no acceden a los modelos directamente ni contienen lógica de negocio;
-los modelos no conocen a las vistas ni a los controladores.
+Las plantillas (Vista) no acceden a los modelos ni contienen lógica de negocio, solo
+recorren los datos que el Controlador les pasa; los modelos no conocen a las vistas ni
+a los controladores.
 
 ## 6. Fuera de alcance (v1)
 

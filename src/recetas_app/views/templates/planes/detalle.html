@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ plan.nombre }} · Recetas-App{% endblock %}
+{% block content %}
+<h1>{{ plan.nombre }}</h1>
+{% if plan.fecha_inicio %}<p class="hint">Inicio: {{ plan.fecha_inicio }}</p>{% endif %}
+
+<div class="card">
+  <h2>Asignar receta</h2>
+  {% if recetas %}
+  <form method="post" action="{{ url_for('planes.asignar', plan_id=plan.id) }}">
+    <label for="dia_semana">Día</label>
+    <select id="dia_semana" name="dia_semana">
+      {% for i, d in enumerate(dias) %}
+      <option value="{{ i }}">{{ d }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="tipo_comida">Tipo de comida</label>
+    <select id="tipo_comida" name="tipo_comida">
+      {% for t in tipos_comida %}
+      <option value="{{ t }}">{{ t.capitalize() }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="recipe_id">Receta</label>
+    <select id="recipe_id" name="recipe_id">
+      {% for r in recetas %}
+      <option value="{{ r.id }}">{{ r.nombre }}</option>
+      {% endfor %}
+    </select>
+
+    <div class="actions">
+      <input type="submit" value="Asignar">
+    </div>
+  </form>
+  {% else %}
+  <p class="empty">Todavía no tienes recetas. <a href="{{ url_for('recetas.nueva') }}">Crea una</a> primero.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Semana</h2>
+  {% for i, dia_nombre in enumerate(dias) %}
+  <div class="day-block">
+    <h3>{{ dia_nombre }}</h3>
+    {% set entradas_dia = entradas | selectattr('dia_semana', 'equalto', i) | list %}
+    {% if entradas_dia %}
+    <table>
+      <tbody>
+        {% for e in entradas_dia %}
+        <tr>
+          <td>{{ e.tipo_comida.capitalize() }}</td>
+          <td><a href="{{ url_for('recetas.detalle', recipe_id=e.recipe_id) }}">{{ e.recipe_nombre }}</a></td>
+          <td>
+            <form class="inline" method="post"
+                  action="{{ url_for('planes.quitar_entrada', plan_id=plan.id, entry_id=e.id) }}">
+              <button type="submit" class="danger">Quitar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty">Sin recetas asignadas.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
